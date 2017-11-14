@@ -6,12 +6,28 @@ from selenium.webdriver.support import expected_conditions as EC
 
 
 def decode(password):
+    """
+    Decode a base64 encoded password.
+
+    :param password: base64 encoded password.
+    :type password: str
+
+    :return: decoded password.
+    """
     return base64.b64decode(password)
 
 
 class LoginPage:
 
     def __init__(self, browser, home_title):
+        """
+
+        :param browser: the browser.
+        :type browser: splinter.Browser
+
+        :param home_title: the home page title you expect after logging in.
+        :type home_title: str
+        """
         self.browser = browser
         self.home_title = home_title
 
