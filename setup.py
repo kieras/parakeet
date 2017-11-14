@@ -18,7 +18,7 @@ NAME = 'parakeet'
 DESCRIPTION = 'UI tests automation utilities library.'
 URL = 'https://github.com/kieras/parakeet'
 EMAIL = 'akieras@ciandt.com'
-AUTHOR = 'CI&T Team'
+AUTHOR = 'CI&T QA Team'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
