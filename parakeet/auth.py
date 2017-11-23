@@ -48,6 +48,7 @@ class LoginPage:
 
     def login(self):
         self.browser.is_element_present_by_id('passwordNext', wait_time=10)
+        WebDriverWait(self.browser.driver, 10).until(EC.element_to_be_clickable((By.ID, 'passwordNext')))
         self.browser.find_by_id('passwordNext').click()
         return self
 
