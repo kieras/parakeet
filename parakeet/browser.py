@@ -24,7 +24,7 @@ class ParakeetElement(object):
         self.parakeet = parakeet
 
     def clear(self):
-        self.element = self.visibility_of_element_located()
+        self.element = self.wait_visibility_of_element_located()
         self.element.clear()
         return self
 
@@ -34,12 +34,12 @@ class ParakeetElement(object):
         return self
 
     def type(self, value):
-        self.element = self.visibility_of_element_located()
+        self.element = self.wait_visibility_of_element_located()
         self.element.send_keys(value)
         self.debounce()
         return self
 
-    def visibility_of_element_located(self):
+    def wait_visibility_of_element_located(self):
         return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time).until(
             ec.visibility_of_element_located(self.locator)
         )
