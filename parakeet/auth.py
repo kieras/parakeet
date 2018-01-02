@@ -32,7 +32,7 @@ class LoginPage:
         self.home_title = home_title
 
     def fill_email(self, email):
-        self.browser.find_element_by_id('identifier').type(email)
+        self.browser.find_element_by_id('identifierId').type(email)
         return self
 
     def click_next(self):
