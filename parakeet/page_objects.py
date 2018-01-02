@@ -45,17 +45,17 @@ class BasePageObject(object):
                 time.sleep(1.5 * debounce_value/1000)
 
     @staticmethod
-    def extract_debounce_value(ng_model_options_value):
+    def extract_debounce_value(attribute_value):
         """
         Try to extract the AngularJS debounce value from ng-model-options value.
 
         Usually that attribute value is something like this: '{ debounce: 300 }'.
 
-        :param attr_value:  The string representing the ng-model-options attribute value.
+        :param attribute_value:  The string representing the ng-model-options attribute value.
         :return: debounce value, or 0 if does not have one.
         """
         debounce_value = "0"
-        result_debounce = re.search("""debounce"*'*:"*'*\s*"*'*(\d*)"*'*,*\s*""", ng_model_options_value, re.IGNORECASE)
+        result_debounce = re.search("""debounce"*'*:"*'*\s*"*'*(\d*)"*'*,*\s*""", attribute_value, re.IGNORECASE)
         if result_debounce:
             debounce_value = result_debounce.group(1)
         return int(debounce_value)
