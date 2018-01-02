@@ -37,7 +37,7 @@ class BasePageObject(object):
 
         :param element: An input element object.
         """
-        ng_model_options_value = BasePageObject.getAttribute(element, 'ng-model-options')
+        ng_model_options_value = BasePageObject.get_attribute(element, 'ng-model-options')
 
         if ng_model_options_value is not None:
             debounce_value = BasePageObject.extract_debounce_value(ng_model_options_value)
