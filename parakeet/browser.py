@@ -124,3 +124,9 @@ class ParakeetBrowser(object):
         element = self.get_element_waiting_for_its_presence(locator)
         return ParakeetElement(element, locator, self)
 
+    def is_element_present_by_id(self, element_id):
+        return self.splinter.is_element_present_by_id(element_id, self.waiting_time)
+
+    def is_element_present_by_xpath(self, element_xpath):
+        return self.splinter.is_element_present_by_xpath(element_xpath, self.waiting_time)
+
