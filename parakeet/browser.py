@@ -33,9 +33,8 @@ class ParakeetElement(object):
         self.element.click()
         return self
 
-    def click_and_wait_to_disappear(self):
-        self.element = self.wait_element_to_be_clickable()
-        self.element.click()
+    def click_and_wait_disappear(self):
+        self.click()
         self.wait_invisibility_of_element_located()
         return self
 
