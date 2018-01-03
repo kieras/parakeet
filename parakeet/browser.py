@@ -33,6 +33,12 @@ class ParakeetElement(object):
         self.element.click()
         return self
 
+    def click_and_wait_to_disappear(self):
+        self.element = self.wait_element_to_be_clickable()
+        self.element.click()
+        self.wait_invisibility_of_element_located()
+        return self
+
     def type(self, value):
         self.element = self.wait_visibility_of_element_located()
         self.element.send_keys(value)
@@ -42,6 +48,11 @@ class ParakeetElement(object):
     def wait_visibility_of_element_located(self):
         return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time).until(
             ec.visibility_of_element_located(self.locator)
+        )
+
+    def wait_invisibility_of_element_located(self):
+        return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time).until(
+            ec.invisibility_of_element_located(self.locator)
         )
 
     def wait_element_to_be_clickable(self):
@@ -96,24 +107,6 @@ class ParakeetBrowser(object):
         self.selenium.implicitly_wait(self.waiting_time)
         self.selenium.set_window_size(int(config['window_size']['width']), int(config['window_size']['height']))
 
-    def quit(self):
-        self.splinter.quit()
-
-    def visit(self, url):
-        self.splinter.visit(url)
-
-    def visit_home(self):
-        self.visit(self.config['home_url'])
-
-    def is_text_present(self, text):
-        return self.splinter.is_text_present(text)
-
-    def get_element_waiting_for_its_presence(self, locator):
-        element = WebDriverWait(self.selenium, self.waiting_time).until(
-            ec.presence_of_element_located(locator)
-        )
-        return element
-
     def find_element_by_id(self, element_id):
         locator = (By.ID, element_id)
         element = self.get_element_waiting_for_its_presence(locator)
@@ -129,4 +122,22 @@ class ParakeetBrowser(object):
 
     def is_element_present_by_xpath(self, element_xpath):
         return self.splinter.is_element_present_by_xpath(element_xpath, self.waiting_time)
+
+    def is_text_present(self, text):
+        return self.splinter.is_text_present(text)
+
+    def quit(self):
+        self.splinter.quit()
+
+    def visit(self, url):
+        self.splinter.visit(url)
+
+    def visit_home(self):
+        self.visit(self.config['home_url'])
+
+    def get_element_waiting_for_its_presence(self, locator):
+        element = WebDriverWait(self.selenium, self.waiting_time).until(
+            ec.presence_of_element_located(locator)
+        )
+        return element
 
