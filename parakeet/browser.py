@@ -44,6 +44,9 @@ class ParakeetElement(object):
         self.debounce()
         return self
 
+    def get_attribute(self, name):
+        return self.element.get_attribute(name)
+
     def wait_visibility_of_element_located(self):
         return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time).until(
             ec.visibility_of_element_located(self.locator)
@@ -63,7 +66,7 @@ class ParakeetElement(object):
         """
         If the element has an AngularJS debounce set, it sleeps for 1.5x the debounce value.
         """
-        ng_model_options_value = self.element.get_attribute('ng-model-options')
+        ng_model_options_value = self.get_attribute('ng-model-options')
 
         if ng_model_options_value is not None:
             debounce_value = ParakeetElement.extract_debounce_value(ng_model_options_value)
