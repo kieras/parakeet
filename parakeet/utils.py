@@ -2,7 +2,7 @@
 import yaml
 
 
-def load_config(yaml_file):
+def load_yaml(yaml_file):
     """
     Load a YAML file and return it as a dict.
 
