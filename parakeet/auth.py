@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 import base64
+
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+
+from parakeet.lettuce_logger import LOG
 
 
 def decode(password):
@@ -31,24 +35,57 @@ class LoginPage:
         self.browser = browser
         self.home_title = home_title
 
+        self.window = ''
+
     def fill_email(self, email):
+        LOG.debug('fill_email')
         self.browser.find_element_by_id('identifierId').type(email)
         return self
 
     def click_next(self):
+        LOG.debug('click_next')
         self.browser.find_element_by_id('identifierNext').click()
         return self
 
     def fill_password(self, password):
-        self.browser.splinter.is_element_visible_by_css('#password input', self.browser.waiting_time)
+        LOG.debug('fill_password')
+        self.browser.splinter.\
+            is_element_visible_by_css('#password input', self.browser.waiting_time)
         self.browser.splinter.type('password', decode(password))
         return self
 
     def login(self):
-        self.browser.find_element_by_id('passwordNext').click()
+        LOG.debug('login')
+        password_next_element = self.browser\
+            .find_element_by_id('passwordNext')\
+            .click()
         return self
 
     def redirect_to_home(self):
-        WebDriverWait(self.browser.selenium, 10).until(ec.title_contains(self.home_title))
-        WebDriverWait(self.browser.selenium, 10).until(ec.invisibility_of_element_located((By.CLASS_NAME, 'main-loading')))
+        LOG.debug('redirect_to_home')
+        WebDriverWait(self.browser.selenium, self.browser.waiting_time, self.browser.poll_frequency)\
+            .until(ec.title_contains(self.home_title))
+        WebDriverWait(self.browser.selenium, self.browser.waiting_time, self.browser.poll_frequency)\
+            .until(ec.invisibility_of_element_located((By.CLASS_NAME, 'main-loading')))
+        return self
+
+    def click_sign_in(self):
+        LOG.debug('click_sign_in')
+        self.browser.find_element_by_xpath('//md-card-actions/button').click()
+        return self
+
+    def switch_windows_before(self):
+        LOG.debug('switch_windows_before')
+        self.browser.selenium.switch_to_window(self.window)
+        return self
+
+    def switch_windows_after(self):
+        LOG.debug('switch_windows_after')
+        popup = self.browser.selenium.window_handles[1]
+        self.browser.selenium.switch_to_window(popup)
+        return self
+
+    def set_window(self):
+        LOG.debug('set_window')
+        self.window = self.browser.selenium.window_handles[0]
         return self
