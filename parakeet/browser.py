@@ -7,6 +7,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+from random import randint
+from time import sleep
+from parakeet.lettuce_logger import LOG
 
 
 class ParakeetElement(object):
@@ -29,6 +32,10 @@ class ParakeetElement(object):
         return self
 
     def click(self):
+        self.parakeet.retry(method=self.click_once_time_only)
+        return self
+
+    def click_once_time_only(self):
         self.element = self.wait_element_to_be_clickable()
         self.element.click()
         return self
@@ -48,17 +55,17 @@ class ParakeetElement(object):
         return self.element.get_attribute(name)
 
     def wait_visibility_of_element_located(self):
-        return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time).until(
+        return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time, self.parakeet.poll_frequency).until(
             ec.visibility_of_element_located(self.locator)
         )
 
     def wait_invisibility_of_element_located(self):
-        return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time).until(
+        return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time, self.parakeet.poll_frequency).until(
             ec.invisibility_of_element_located(self.locator)
         )
 
     def wait_element_to_be_clickable(self):
-        return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time).until(
+        return WebDriverWait(self.parakeet.selenium, self.parakeet.waiting_time, self.parakeet.poll_frequency).until(
             ec.element_to_be_clickable(self.locator)
         )
 
@@ -103,43 +110,87 @@ class ParakeetBrowser(object):
 
     def __init__(self, config):
         self.config = config
-        self.splinter = Browser(config['browser'])
+        self.splinter = Browser(config.get('browser'), headless=config.get('headless'))
         self.selenium = self.splinter.driver
-        self.waiting_time = int(config['default_implicitly_wait_seconds'])
+        self.waiting_time = int(config.get('default_implicitly_wait_seconds'))
+        self.poll_frequency = int(config.get('default_poll_frequency_seconds'))
+        self.retry_get_element = int(config.get('retry', 1))
         self.selenium.implicitly_wait(self.waiting_time)
-        self.selenium.set_window_size(int(config['window_size']['width']), int(config['window_size']['height']))
+        self.selenium.set_window_size(int(config['window_size']['width']),
+                                      int(config['window_size']['height']))
 
     def find_element_by_id(self, element_id):
+        LOG.debug('find_element_by_id({})'
+                  .format(element_id))
         locator = (By.ID, element_id)
         element = self.get_element_waiting_for_its_presence(locator)
         return ParakeetElement(element, locator, self)
 
     def find_element_by_xpath(self, element_xpath):
+        LOG.debug('find_element_by_xpath({})'
+                  .format(element_xpath))
         locator = (By.XPATH, element_xpath)
         element = self.get_element_waiting_for_its_presence(locator)
         return ParakeetElement(element, locator, self)
 
     def is_element_present_by_id(self, element_id):
+        LOG.debug('is_element_present_by_id({})'
+                  .format(element_id))
         return self.splinter.is_element_present_by_id(element_id, self.waiting_time)
 
     def is_element_present_by_xpath(self, element_xpath):
+        LOG.debug('is_element_present_by_xpath({})'
+                  .format(element_xpath))
         return self.splinter.is_element_present_by_xpath(element_xpath, self.waiting_time)
 
     def is_text_present(self, text):
+        LOG.debug('is_text_present({})'
+                  .format(text))
         return self.splinter.is_text_present(text)
 
     def quit(self):
+        LOG.debug('quit')
         self.splinter.quit()
 
     def visit(self, url):
+        LOG.debug('visit')
         self.splinter.visit(url)
 
     def visit_home(self):
+        LOG.debug('visit_home')
         self.visit(self.config['home_url'])
 
     def get_element_waiting_for_its_presence(self, locator):
-        element = WebDriverWait(self.selenium, self.waiting_time).until(
+        LOG.debug('get_element_waiting_for_its_presence({}, {}, {})'
+                  .format(locator, self.waiting_time, self.poll_frequency))
+        element = WebDriverWait(self.selenium, self.waiting_time, self.poll_frequency).until(
             ec.presence_of_element_located(locator)
         )
         return element
 
+    # noinspection PyBroadException
+    def retry(self, method=None, **kwargs):
+        """
+        Method retry the execution
+        :param method:
+        :param kwargs:
+        :return:
+        """
+        _next = 'next_iterator'
+        _retry = self.retry_get_element
+        _next_iterator = kwargs.get(_next, 1)
+
+        try:
+            LOG.debug('Trying {}/{} to perform method {}'
+                      .format(_next_iterator, _retry, method.__name__))
+
+            kwargs.pop(_next, None)
+
+            return method(**kwargs)
+        except Exception as ex:
+            LOG.error('Exception: {}'.format(ex.message))
+            if _next_iterator < _retry:
+                kwargs[_next] = _next_iterator + 1
+                sleep(randint(1, 3))
+                return self.retry(method=method, **kwargs)
+            raise ex
