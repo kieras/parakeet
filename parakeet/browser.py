@@ -160,13 +160,20 @@ class ParakeetBrowser(object):
         LOG.debug('visit_home')
         self.visit(self.config['home_url'])
 
-    def get_element_waiting_for_its_presence(self, locator):
+    def get_element_waiting_for_its_presence(self, locator, waiting_time=None):
+        _waiting_time = waiting_time if waiting_time else self.waiting_time
         LOG.debug('get_element_waiting_for_its_presence({}, {}, {})'
-                  .format(locator, self.waiting_time, self.poll_frequency))
-        element = WebDriverWait(self.selenium, self.waiting_time, self.poll_frequency).until(
+                  .format(locator, _waiting_time, self.poll_frequency))
+        element = WebDriverWait(self.selenium, _waiting_time, self.poll_frequency).until(
             ec.presence_of_element_located(locator)
         )
         return element
+
+    def get_element_waiting_for_its_presence_by_xpath(self, xpath, waiting_time=None):
+        _waiting_time = waiting_time if waiting_time else self.waiting_time
+        LOG.debug('get_element_waiting_for_its_presence_by_xpath({}, {}, {})'
+                  .format(xpath, _waiting_time, self.poll_frequency))
+        return self.get_element_waiting_for_its_presence((By.XPATH, xpath), _waiting_time)
 
     # noinspection PyBroadException
     def retry(self, method=None, **kwargs):
