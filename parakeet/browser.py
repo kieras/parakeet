@@ -119,11 +119,11 @@ class ParakeetBrowser(object):
         self.selenium.set_window_size(int(config['window_size']['width']),
                                       int(config['window_size']['height']))
 
-    def find_element_by_id(self, element_id):
+    def find_element_by_id(self, element_id, waiting_time=None):
         LOG.debug('find_element_by_id({})'
                   .format(element_id))
         locator = (By.ID, element_id)
-        element = self.get_element_waiting_for_its_presence(locator)
+        element = self.get_element_waiting_for_its_presence(locator, waiting_time)
         return ParakeetElement(element, locator, self)
 
     def find_element_by_xpath(self, element_xpath):
@@ -174,6 +174,12 @@ class ParakeetBrowser(object):
         LOG.debug('get_element_waiting_for_its_presence_by_xpath({}, {}, {})'
                   .format(xpath, _waiting_time, self.poll_frequency))
         return self.get_element_waiting_for_its_presence((By.XPATH, xpath), _waiting_time)
+
+    def signout(self):
+        LOG.debug('signout')
+        self.find_element_by_xpath("//*[@id='account-avatar']/img").click()
+        self.get_element_waiting_for_its_presence_by_xpath("//*[@id='signout']")
+        self.find_element_by_xpath("//*[@id='signout']").click()
 
     # noinspection PyBroadException
     def retry(self, method=None, **kwargs):
