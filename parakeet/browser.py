@@ -148,6 +148,16 @@ class ParakeetBrowser(object):
                   .format(text))
         return self.splinter.is_text_present(text)
 
+    def is_text_present_exception(self, text):
+        LOG.debug('is_text_present_exception({})'
+                  .format(text))
+        result = self.splinter.is_text_present(text)
+
+        if not result:
+            raise Exception('Not found!')
+
+        return result
+
     def quit(self):
         LOG.debug('quit')
         self.splinter.quit()
@@ -198,12 +208,29 @@ class ParakeetBrowser(object):
                       .format(_next_iterator, _retry, method.__name__))
 
             kwargs.pop(_next, None)
+            result = method(**kwargs)
 
-            return method(**kwargs)
+            if isinstance(result, bool) and \
+                    not result and \
+                    _next_iterator < _retry:
+                    return self._perform_method(_next, _next_iterator, kwargs, method)
+
+            return result
         except Exception as ex:
             LOG.error('Exception: {}'.format(ex.message))
             if _next_iterator < _retry:
-                kwargs[_next] = _next_iterator + 1
-                sleep(randint(1, 3))
-                return self.retry(method=method, **kwargs)
+                return self._perform_method(_next, _next_iterator, kwargs, method)
             raise ex
+
+    def _perform_method(self, next, next_iterator, kwargs, method):
+        """
+        Perform the method and return the value
+        :param next:
+        :param next_iterator:
+        :param kwargs:
+        :param method:
+        :return:
+        """
+        kwargs[next] = next_iterator + 1
+        sleep(randint(1, 3))
+        return self.retry(method=method, **kwargs)
