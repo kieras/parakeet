@@ -220,6 +220,7 @@ class ParakeetBrowser(object):
             LOG.error('Exception: {}'.format(ex.message))
             if _next_iterator < _retry:
                 return self._perform_method(_next, _next_iterator, kwargs, method)
+            self.selenium.save_screenshot('error_{}.png'.format(method.__name__))
             raise ex
 
     def _perform_method(self, next, next_iterator, kwargs, method):
