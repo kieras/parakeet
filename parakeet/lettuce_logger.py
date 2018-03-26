@@ -28,12 +28,12 @@ formatter = ColoredFormatter(
     )
 
 
-class CustomLogging(logging.Logger):
+class CustomLogging(logging.getLoggerClass()):
     """
     The ideia is override our custom logs and do some additional stuffs.
     """
     def debug(self, msg, *args, **kwargs):
-        if world.get(SNAPSHOT_DEBUG, False):
+        if world.browser.snapshot_debug:
             world.browser.selenium.save_screenshot(
                 'reqf_debug_{:05d}.png'.format(next_image()))
         return super(CustomLogging, self).debug(msg, *args, **kwargs)
@@ -53,7 +53,6 @@ def init_logs(level='INFO', logger=None):
     ch.setLevel(_level)
     ch.setFormatter(formatter)
     handler.addHandler(ch)
-    logging.setLoggerClass(CustomLogging)
 
 
 def get_logger():
@@ -61,6 +60,7 @@ def get_logger():
     Return the default logger.
     :return:
     """
+    logging.setLoggerClass(CustomLogging)
     return logging.getLogger(APP_LOGGER)
 
 

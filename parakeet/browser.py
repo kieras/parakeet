@@ -47,18 +47,26 @@ class ParakeetElement(object):
         self.wait_invisibility_of_element_located()
         return self
 
-    def type(self, value):
+    def type(self, value, type_pause=0):
+        raise Exception
+        _type_pause = type_pause if type_pause > 0 else self.parakeet.type_pause
+
         self.element = self.wait_visibility_of_element_located()
-        self.element.send_keys(value)
+        if _type_pause > 0:
+            self._type_slowly(value, _type_pause)
+        else:
+            LOG.debug('type_normal {}'.format(value))
+            self.element.send_keys(value)
+
         self.debounce()
+
         return self
 
-    def type_slowly(self, value):
+    def _type_slowly(self, value, type_pause=0.3):
         LOG.debug('type_slowly {}'.format(value))
         for character in value:
-            LOG.debug('character {}'.format(character))
-            self.type(character)
-            time.sleep(0.3)  # pause for 0.3 seconds
+            self.element.send_keys(character)
+            time.sleep(type_pause)
         return self
 
     def get_attribute(self, name):
@@ -125,6 +133,7 @@ class ParakeetBrowser(object):
         self.waiting_time = int(config.get('default_implicitly_wait_seconds'))
         self.poll_frequency = int(config.get('default_poll_frequency_seconds'))
         self.snapshot_debug = int(config.get('snapshot_debug', False))
+        self.type_pause = int(config.get('type_pause', 0))
         self.retry_get_element = int(config.get('retry', 1))
         self.selenium.implicitly_wait(self.waiting_time)
         self.selenium.set_window_size(int(config['window_size']['width']),
