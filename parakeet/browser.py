@@ -124,6 +124,7 @@ class ParakeetBrowser(object):
         self.selenium = self.splinter.driver
         self.waiting_time = int(config.get('default_implicitly_wait_seconds'))
         self.poll_frequency = int(config.get('default_poll_frequency_seconds'))
+        self.snapshot_debug = int(config.get('snapshot_debug', False))
         self.retry_get_element = int(config.get('retry', 1))
         self.selenium.implicitly_wait(self.waiting_time)
         self.selenium.set_window_size(int(config['window_size']['width']),
