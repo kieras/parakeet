@@ -48,9 +48,8 @@ class ParakeetElement(object):
         return self
 
     def type(self, value, type_pause=0):
-        raise Exception
         _type_pause = type_pause if type_pause > 0 else self.parakeet.type_pause
-
+        LOG.debug('type {} {}'.format(value, _type_pause))
         self.element = self.wait_visibility_of_element_located()
         if _type_pause > 0:
             self._type_slowly(value, _type_pause)
@@ -132,8 +131,8 @@ class ParakeetBrowser(object):
         self.selenium = self.splinter.driver
         self.waiting_time = int(config.get('default_implicitly_wait_seconds'))
         self.poll_frequency = int(config.get('default_poll_frequency_seconds'))
-        self.snapshot_debug = int(config.get('snapshot_debug', False))
-        self.type_pause = int(config.get('type_pause', 0))
+        self.snapshot_debug = config.get('snapshot_debug', False)
+        self.type_pause = float(config.get('type_pause', 0))
         self.retry_get_element = int(config.get('retry', 1))
         self.selenium.implicitly_wait(self.waiting_time)
         self.selenium.set_window_size(int(config['window_size']['width']),
