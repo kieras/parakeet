@@ -51,6 +51,14 @@ class ParakeetElement(object):
         self.debounce()
         return self
 
+    def type_slowly(self, value):
+        LOG.debug('type_slowly {}'.format(value))
+        for character in value:
+            LOG.debug('character {}'.format(character))
+            self.type(character)
+            time.sleep(0.3)  # pause for 0.3 seconds
+        return self
+
     def get_attribute(self, name):
         return self.element.get_attribute(name)
 
