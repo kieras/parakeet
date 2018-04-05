@@ -1,27 +1,39 @@
 # Parakeet
 
-A collection of resources, libraries and praticies using the stack: 
+UI tests automation utilities library.
+ 
+The aim is to easy the development of tests for applications that follow a 
+known set of technologies:
 
-- [Selenium](https://www.seleniumhq.org/projects/webdriver/) 
-- [Chromewebdriver](https://sites.google.com/a/chromium.org/chromedriver/) 
-- [Splinter](https://splinter.readthedocs.io/en/latest/lettuc) 
+- Angular JS
+- Angular JS Material
+- Google OAuth2
+- Chrome Browser
+
+This library depends, and sometime implements useful abstractions, on the following libraries: 
+
 - [Lettuce](http://lettuce.it/)
+- [Splinter](https://splinter.readthedocs.io/)
+- [Selenium](https://www.seleniumhq.org/projects/webdriver/)
+- [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/)
 
-Focused on the applications that use Google Stack (GCP, Gmail OAUTH2 and others).
+We designed it overcome some challenges of developing BDD tests considering the technologies below:
 
-## Instalation
+![Parakeet stack](parakeet-stack.png?raw=true "Parakeet Stack")
 
-You can install the parakeet using the the package manager PIP.
+## Installation
+
+You can install Parakeet using the package manager PIP.
 
 ```
 pip install parakeet -U
 ```
 
-> **Note**: To use parakeet is necessary install previously all of tools metnioned above.
+## Configuration
 
-## Config
+Parakeet reads a **config.yaml** file that can be used to parameterize it's behaviours.
 
-The parakeet works with a parameterized files **config.yaml** and **users.yaml**. These files are responsible for some tests behaviors. They need to be saved on the home directory of the operation system.
+It need to be saved on the home directory of the operation system running the tests.
 
 <table>
     <tr style="background: grey;font-weight: bold;">
@@ -32,13 +44,13 @@ The parakeet works with a parameterized files **config.yaml** and **users.yaml**
     </tr>
     <tr>
         <td>browser</td>
-        <td>This parameter define how browser will be used to test. Today the parakeet support just Chrome browser</td>
+        <td>This parameter define which browser will be used to run the tests. Today we only support the Chrome Browser</td>
         <td>chrome</td>
         <td>chrome</td>
     </tr>
     <tr>
         <td>headless</td>
-        <td>Define if the tests will open the browser or perform the tests with graphical mode off. It is very usefull in developer mode, when the developer need to debug or understand some issues. Case True, doesn't open the browser.</td>
+        <td>Define if the tests will open the browser or perform the tests with graphical mode off. It is very useful in developer mode, when the developer need to debug or understand some issues. Case True, doesn't open the browser.</td>
         <td>True<br>False</td>
         <td>False</td>
     </tr>
@@ -62,7 +74,7 @@ The parakeet works with a parameterized files **config.yaml** and **users.yaml**
     </tr>         
     <tr>
         <td>log_name</td>
-        <td>You can setup the name of the logs that you want to see. For example if you want to see everyone you don't need to setup this field. But you can setup this one just to see the parakeet or just the loggers that you application are logging.</td>
+        <td>You can setup the name of the logs that you want to see. For example if you want to see everyone you don't need to setup this field. But you can setup this parameter to just see the Parakeet logs or just the loggers that you application are logging.</td>
         <td>Ex.: google.tests.e2e</td>
         <td>Empty</td>
     </tr>
@@ -74,7 +86,7 @@ The parakeet works with a parameterized files **config.yaml** and **users.yaml**
     </tr> 
     <tr>
         <td>login_provider</td>
-        <td>The parakeet provide to you an abrastraction mechanism in order to login in the google account (if your application have something like it). Thinking on it, we created a parameter where the user can setup the version of this mechanism.</td>
+        <td>The parakeet provide to you an abrastraction mechanism in order to login in the Google account (if your application have something like it). Thinking of it, we created a parameter where the user can setup the version of this mechanism.</td>
         <td>google_oauth</td>
         <td>google_oauth<br/>google_oauth_gapi2</td>
     </tr>
@@ -98,15 +110,35 @@ The parakeet works with a parameterized files **config.yaml** and **users.yaml**
     </tr>
         <tr>
         <td>system_page_title</td>
-        <td>The system page title, this is used in order to check if the user are logged on the application. Just in cases that tests envolving Google login.</td>
+        <td>The system page title, this is used in order to check if the user are logged on the application. That's the way we check if the test already passed the login phase.</td>
         <td>Text defined on the tag title on the application</td>
         <td>Empty</td>
     </tr>  
 </table>
 
-# Methods and Functions
+### Configuration example
 
-- TBD
+(TODO - create/maintain example files and reference it here)
+
+## Users configuration
+
+Parakeet reads a **users.yaml** file that can be used to store users credentials 
+that will be used in the tests..
+
+It need to be saved on the home directory of the operation system running the tests.
+
+### Users configuration example
+
+(TODO - create/maintain example files and reference it here)
+
+## Lettuce terrain
+
+In order to bootstrap and start using this library in your Lettuce tests, you
+should initialize it in the "terrain" file.
+
+### Lettuce terrain example
+
+(TODO - create/maintain example files and reference it here)
 
 ## Why Parakeet?
 
