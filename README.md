@@ -1,7 +1,9 @@
 # Parakeet
 
+![Parakeet](parakeet-logo-small.png?raw=true "Parakeet")
+
 UI tests automation utilities library.
- 
+
 The aim is to easy the development of tests for applications that follow a 
 known set of technologies:
 
@@ -143,3 +145,7 @@ should initialize it in the "terrain" file.
 ## Why Parakeet?
 
 Github suggested it.
+
+### Logo attribution
+
+We found our "logo" image here: <a href="https://www.vecteezy.com/">Free Vector Graphics by www.vecteezy.com</a>
