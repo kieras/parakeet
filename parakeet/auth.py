@@ -39,7 +39,13 @@ class LoginPage:
 
     def fill_email(self, email):
         LOG.debug('fill_email')
-        self.browser.find_element_by_id('identifierId').type(email)
+        try:
+            self.browser.find_element_by_id('identifierId').type(email)
+        except TimeoutException:
+            LOG.debug('click_on_identifier_before_fill_email')
+            self.browser.find_element_by_id('identifierLink').click()
+            self.browser.find_element_by_id('identifierId').type(email)
+
         return self
 
     def click_next(self):

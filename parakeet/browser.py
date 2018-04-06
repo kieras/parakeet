@@ -11,6 +11,8 @@ from random import randint
 from time import sleep
 from parakeet.lettuce_logger import LOG
 
+from .utils import next_image
+
 
 class ParakeetElement(object):
     """
@@ -45,10 +47,35 @@ class ParakeetElement(object):
         self.wait_invisibility_of_element_located()
         return self
 
-    def type(self, value):
+    def type(self, value, type_pause=0):
+        _type_pause = type_pause if type_pause > 0 else self.parakeet.type_pause
+        LOG.debug('type {} {}'.format(value, _type_pause))
         self.element = self.wait_visibility_of_element_located()
-        self.element.send_keys(value)
+        self._type_handle(_type_pause, value)
+
         self.debounce()
+
+        return self
+
+    def _type_handle(self, _type_pause, value):
+        if _type_pause > 0:
+            self._type_slowly(value, _type_pause)
+        else:
+            LOG.debug('type_normal {}'.format(value))
+            self.element.send_keys(value)
+
+    def _type_slowly(self, value, type_pause):
+        LOG.debug('type_slowly {}'.format(value))
+
+        if not (type_pause and isinstance(type_pause, float) and 0.0 < type_pause < 1):
+            raise ValueError(
+                'The type_pause argument need to be an float valid number between 0.01 and 0.99'
+            )
+
+        for character in value:
+            self.element.send_keys(character)
+            time.sleep(type_pause)
+
         return self
 
     def get_attribute(self, name):
@@ -114,16 +141,18 @@ class ParakeetBrowser(object):
         self.selenium = self.splinter.driver
         self.waiting_time = int(config.get('default_implicitly_wait_seconds'))
         self.poll_frequency = int(config.get('default_poll_frequency_seconds'))
+        self.snapshot_debug = config.get('snapshot_debug', False)
+        self.type_pause = float(config.get('type_pause', 0))
         self.retry_get_element = int(config.get('retry', 1))
         self.selenium.implicitly_wait(self.waiting_time)
         self.selenium.set_window_size(int(config['window_size']['width']),
                                       int(config['window_size']['height']))
 
-    def find_element_by_id(self, element_id):
+    def find_element_by_id(self, element_id, waiting_time=None):
         LOG.debug('find_element_by_id({})'
                   .format(element_id))
         locator = (By.ID, element_id)
-        element = self.get_element_waiting_for_its_presence(locator)
+        element = self.get_element_waiting_for_its_presence(locator, waiting_time)
         return ParakeetElement(element, locator, self)
 
     def find_element_by_xpath(self, element_xpath):
@@ -160,13 +189,20 @@ class ParakeetBrowser(object):
         LOG.debug('visit_home')
         self.visit(self.config['home_url'])
 
-    def get_element_waiting_for_its_presence(self, locator):
+    def get_element_waiting_for_its_presence(self, locator, waiting_time=None):
+        _waiting_time = waiting_time if waiting_time else self.waiting_time
         LOG.debug('get_element_waiting_for_its_presence({}, {}, {})'
-                  .format(locator, self.waiting_time, self.poll_frequency))
-        element = WebDriverWait(self.selenium, self.waiting_time, self.poll_frequency).until(
+                  .format(locator, _waiting_time, self.poll_frequency))
+        element = WebDriverWait(self.selenium, _waiting_time, self.poll_frequency).until(
             ec.presence_of_element_located(locator)
         )
         return element
+
+    def get_element_waiting_for_its_presence_by_xpath(self, xpath, waiting_time=None):
+        _waiting_time = waiting_time if waiting_time else self.waiting_time
+        LOG.debug('get_element_waiting_for_its_presence_by_xpath({}, {}, {})'
+                  .format(xpath, _waiting_time, self.poll_frequency))
+        return self.get_element_waiting_for_its_presence((By.XPATH, xpath), _waiting_time)
 
     # noinspection PyBroadException
     def retry(self, method=None, **kwargs):
@@ -185,12 +221,31 @@ class ParakeetBrowser(object):
                       .format(_next_iterator, _retry, method.__name__))
 
             kwargs.pop(_next, None)
+            result = method(**kwargs)
 
-            return method(**kwargs)
+            if isinstance(result, bool) and \
+                    not result and \
+                    _next_iterator < _retry:
+                    return self._perform_method(_next, _next_iterator, kwargs, method)
+
+            return result
         except Exception as ex:
             LOG.error('Exception: {}'.format(ex.message))
             if _next_iterator < _retry:
-                kwargs[_next] = _next_iterator + 1
-                sleep(randint(1, 3))
-                return self.retry(method=method, **kwargs)
+                return self._perform_method(_next, _next_iterator, kwargs, method)
+            self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
+                                          .format(next_image(), method.__name__))
             raise ex
+
+    def _perform_method(self, next, next_iterator, kwargs, method):
+        """
+        Perform the method and return the value
+        :param next:
+        :param next_iterator:
+        :param kwargs:
+        :param method:
+        :return:
+        """
+        kwargs[next] = next_iterator + 1
+        sleep(randint(1, 3))
+        return self.retry(method=method, **kwargs)
