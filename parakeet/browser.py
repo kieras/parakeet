@@ -51,21 +51,31 @@ class ParakeetElement(object):
         _type_pause = type_pause if type_pause > 0 else self.parakeet.type_pause
         LOG.debug('type {} {}'.format(value, _type_pause))
         self.element = self.wait_visibility_of_element_located()
+        self._type_handle(_type_pause, value)
+
+        self.debounce()
+
+        return self
+
+    def _type_handle(self, _type_pause, value):
         if _type_pause > 0:
             self._type_slowly(value, _type_pause)
         else:
             LOG.debug('type_normal {}'.format(value))
             self.element.send_keys(value)
 
-        self.debounce()
-
-        return self
-
-    def _type_slowly(self, value, type_pause=0.3):
+    def _type_slowly(self, value, type_pause):
         LOG.debug('type_slowly {}'.format(value))
+
+        if not (type_pause and isinstance(type_pause, float) and 0.0 < type_pause < 1):
+            raise ValueError(
+                'The type_pause argument need to be an float valid number between 0.01 and 0.99'
+            )
+
         for character in value:
             self.element.send_keys(character)
             time.sleep(type_pause)
+
         return self
 
     def get_attribute(self, name):
@@ -204,12 +214,6 @@ class ParakeetBrowser(object):
                   .format(xpath, _waiting_time, self.poll_frequency))
         return self.get_element_waiting_for_its_presence((By.XPATH, xpath), _waiting_time)
 
-    def signout(self):
-        LOG.debug('signout')
-        self.find_element_by_xpath("//*[@id='account-avatar']/img").click()
-        self.get_element_waiting_for_its_presence_by_xpath("//*[@id='signout']")
-        self.find_element_by_xpath("//*[@id='signout']").click()
-
     # noinspection PyBroadException
     def retry(self, method=None, **kwargs):
         """
@@ -239,7 +243,7 @@ class ParakeetBrowser(object):
             LOG.error('Exception: {}'.format(ex.message))
             if _next_iterator < _retry:
                 return self._perform_method(_next, _next_iterator, kwargs, method)
-            self.selenium.save_screenshot('reqf_error_{:05d}_{}.png'
+            self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
                                           .format(next_image(), method.__name__))
             raise ex
 

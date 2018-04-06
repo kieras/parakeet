@@ -35,7 +35,7 @@ class CustomLogging(logging.getLoggerClass()):
     def debug(self, msg, *args, **kwargs):
         if world.browser.snapshot_debug:
             world.browser.selenium.save_screenshot(
-                'reqf_debug_{:05d}.png'.format(next_image()))
+                'parakeet_debug_{:05d}.png'.format(next_image()))
         return super(CustomLogging, self).debug(msg, *args, **kwargs)
 
 
