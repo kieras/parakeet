@@ -177,16 +177,6 @@ class ParakeetBrowser(object):
                   .format(text))
         return self.splinter.is_text_present(text)
 
-    def is_text_present_exception(self, text):
-        LOG.debug('is_text_present_exception({})'
-                  .format(text))
-        result = self.splinter.is_text_present(text)
-
-        if not result:
-            raise Exception('Not found!')
-
-        return result
-
     def quit(self):
         LOG.debug('quit')
         self.splinter.quit()
