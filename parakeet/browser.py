@@ -49,7 +49,7 @@ class ParakeetElement(object):
 
     def type(self, value, type_pause=0):
         _type_pause = type_pause if type_pause > 0 else self.parakeet.type_pause
-        LOG.debug('type {} {}'.format(value, _type_pause))
+        LOG.debug('type {} {}'.format(value.encode('utf-8', 'replace'), _type_pause))
         self.element = self.wait_visibility_of_element_located()
         self._type_handle(_type_pause, value)
 
@@ -61,11 +61,11 @@ class ParakeetElement(object):
         if _type_pause > 0:
             self._type_slowly(value, _type_pause)
         else:
-            LOG.debug('type_normal {}'.format(value))
+            LOG.debug('type_normal {}'.format(value.encode('utf-8', 'replace')))
             self.element.send_keys(value)
 
     def _type_slowly(self, value, type_pause):
-        LOG.debug('type_slowly {}'.format(value))
+        LOG.debug('type_slowly {}'.format(value.encode('utf-8', 'replace')))
 
         if not (type_pause and isinstance(type_pause, float) and 0.0 < type_pause < 1):
             raise ValueError(
