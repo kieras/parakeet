@@ -231,7 +231,7 @@ class ParakeetBrowser(object):
 
             return result
         except Exception as ex:
-            LOG.error('Exception: {}'.format(ex.message))
+            LOG.error('Exception: {}'.format(str(ex)))
             if _next_iterator < _retry:
                 return self._perform_method(_next, _next_iterator, kwargs, method)
             self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
