@@ -232,11 +232,18 @@ class ParakeetBrowser(object):
             return result
         except Exception as ex:
             LOG.error('Exception: {}'.format(str(ex)))
+            if 'md-backdrop' in str(ex):
+                self._remove_back_drop()
+
             if _next_iterator < _retry:
                 return self._perform_method(_next, _next_iterator, kwargs, method)
             self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
                                           .format(next_image(), method.__name__))
             raise ex
+
+    def _remove_back_drop(self):
+        LOG.info('---- Remove md-backdrop ---')
+        self.splinter.execute_script("document.getElementsByTagName('md-backdrop')[0].style.display = 'none'")
 
     def _perform_method(self, next, next_iterator, kwargs, method):
         """
