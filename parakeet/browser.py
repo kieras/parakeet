@@ -34,10 +34,14 @@ class ParakeetElement(object):
         return self
 
     def click(self):
-        self.parakeet.retry(method=self.click_once_time_only)
+        try:
+            self.parakeet.retry(method=self.click_once)
+        except Exception as ex:
+            LOG.error('Attempts exceeded')
+
         return self
 
-    def click_once_time_only(self):
+    def click_once(self):
         self.element = self.wait_element_to_be_clickable()
         self.element.click()
         return self
@@ -235,11 +239,18 @@ class ParakeetBrowser(object):
             if 'md-backdrop' in str(ex):
                 self._remove_back_drop()
 
+            if 'md-scroll-mask' in str(ex):
+                self._remove_scroll_back()
+
             if _next_iterator < _retry:
                 return self._perform_method(_next, _next_iterator, kwargs, method)
             self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
                                           .format(next_image(), method.__name__))
             raise ex
+
+    def _remove_scroll_back(self):
+        LOG.info('---- Remove md-scroll-mask ---')
+        self.splinter.execute_script("document.getElementsByClassName('md-scroll-mask')[0]['style']['display'] = 'none'")
 
     def _remove_back_drop(self):
         LOG.info('---- Remove md-backdrop ---')
