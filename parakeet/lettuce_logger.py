@@ -14,8 +14,8 @@ APP_LOGGER = 'google.tests.e2e'
 SNAPSHOT_DEBUG = 'SNAPSHOT_DEBUG'
 
 formatter = ColoredFormatter(
-        "%(green)s%(asctime)s - %(name)s -%(reset)s %(log_color)s%(levelname)-8s%(reset)s"
-        " - %(purple)s%(message)s",
+        "%(bold_blue)s[%(processName)s]%(reset)s %(green)s%(asctime)s - %(name)s -%(reset)s "
+        "%(log_color)s%(levelname)-8s%(reset)s - %(purple)s%(message)s",
         datefmt=None,
         reset=True,
         log_colors={
@@ -26,7 +26,6 @@ formatter = ColoredFormatter(
             'CRITICAL': 'red',
         }
     )
-
 
 class CustomLogging(logging.getLoggerClass()):
     """
