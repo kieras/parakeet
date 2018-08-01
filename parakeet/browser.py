@@ -148,6 +148,7 @@ class ParakeetBrowser(object):
         self.waiting_time = int(config.get('default_implicitly_wait_seconds'))
         self.poll_frequency = int(config.get('default_poll_frequency_seconds'))
         self.snapshot_debug = config.get('snapshot_debug', False)
+        self.color_log = config.get('color_log', False)
         self.type_pause = float(config.get('type_pause', 0))
         self.retry_get_element = int(config.get('retry', 1))
         self.selenium.implicitly_wait(self.waiting_time)
