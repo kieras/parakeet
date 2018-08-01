@@ -209,6 +209,9 @@ class ParakeetBrowser(object):
             )
         except TimeoutException:
             LOG.error("Time is up! {}s".format(_waiting_time))
+            self.selenium\
+                .save_screenshot('parakeet_timeout_error_{:05d}.png'
+                                 .format(next_image()))
 
         return element
 
@@ -253,6 +256,7 @@ class ParakeetBrowser(object):
 
             if _next_iterator < _retry:
                 return self._perform_method(_next, _next_iterator, kwargs, method)
+
             self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
                                           .format(next_image(), method.__name__))
             raise ex
