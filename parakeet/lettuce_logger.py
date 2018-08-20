@@ -13,7 +13,9 @@ log_level = {'INFO': logging.INFO,
 APP_LOGGER = 'google.tests.e2e'
 SNAPSHOT_DEBUG = 'SNAPSHOT_DEBUG'
 
-formatter = ColoredFormatter(
+formatter_normal = logging.Formatter("[%(processName)s] %(asctime)s - %(name)s - %(levelname)-8s - %(message)s",
+                                     datefmt=None)
+formatter_color = ColoredFormatter(
         "%(bold_blue)s[%(processName)s]%(reset)s %(green)s%(asctime)s - %(name)s -%(reset)s "
         "%(log_color)s%(levelname)-8s%(reset)s - %(purple)s%(message)s",
         datefmt=None,
@@ -27,6 +29,7 @@ formatter = ColoredFormatter(
         }
     )
 
+
 class CustomLogging(logging.getLoggerClass()):
     """
     The ideia is override our custom logs and do some additional stuffs.
@@ -38,7 +41,7 @@ class CustomLogging(logging.getLoggerClass()):
         return super(CustomLogging, self).debug(msg, *args, **kwargs)
 
 
-def init_logs(level='INFO', logger=None):
+def init_logs(level='INFO', logger=None, color_log=False):
     """
     Setup the logs inside of the tests.
     :param level:
@@ -50,7 +53,7 @@ def init_logs(level='INFO', logger=None):
     handler.setLevel(_level)
     ch = logging.StreamHandler(sys.stdout)
     ch.setLevel(_level)
-    ch.setFormatter(formatter)
+    ch.setFormatter(formatter_color if color_log else formatter_normal)
     handler.addHandler(ch)
 
 

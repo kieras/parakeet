@@ -2,6 +2,8 @@
 from __future__ import division
 import time
 import re
+
+from selenium.common.exceptions import TimeoutException
 from splinter import Browser
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -146,6 +148,7 @@ class ParakeetBrowser(object):
         self.waiting_time = int(config.get('default_implicitly_wait_seconds'))
         self.poll_frequency = int(config.get('default_poll_frequency_seconds'))
         self.snapshot_debug = config.get('snapshot_debug', False)
+        self.color_log = config.get('color_log', False)
         self.type_pause = float(config.get('type_pause', 0))
         self.retry_get_element = int(config.get('retry', 1))
         self.selenium.implicitly_wait(self.waiting_time)
@@ -198,9 +201,18 @@ class ParakeetBrowser(object):
         _waiting_time = waiting_time if waiting_time else self.waiting_time
         LOG.debug('get_element_waiting_for_its_presence({}, {}, {})'
                   .format(locator, _waiting_time, self.poll_frequency))
-        element = WebDriverWait(self.selenium, _waiting_time, self.poll_frequency).until(
-            ec.presence_of_element_located(locator)
-        )
+        element = None
+
+        try:
+            element = WebDriverWait(self.selenium, _waiting_time, self.poll_frequency).until(
+                ec.presence_of_element_located(locator)
+            )
+        except TimeoutException:
+            LOG.error("Time is up! {}s".format(_waiting_time))
+            self.selenium\
+                .save_screenshot('parakeet_timeout_error_{:05d}.png'
+                                 .format(next_image()))
+
         return element
 
     def get_element_waiting_for_its_presence_by_xpath(self, xpath, waiting_time=None):
@@ -244,6 +256,7 @@ class ParakeetBrowser(object):
 
             if _next_iterator < _retry:
                 return self._perform_method(_next, _next_iterator, kwargs, method)
+
             self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
                                           .format(next_image(), method.__name__))
             raise ex
