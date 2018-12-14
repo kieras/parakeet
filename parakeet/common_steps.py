@@ -46,8 +46,8 @@ def google_oauth_gapi2(user_name):
         .click_sign_in()\
         .switch_windows_after()
     #check if there is already an account signed in:
-    LoginPage(world.browser, world.cfg['system_page_title'])\
-        .click_to_log_with_another_account()
+    #LoginPage(world.browser, world.cfg['system_page_title'])\
+    #.click_to_log_with_another_account()
 
     google_oauth(user_name)
     LoginPage(world.browser, world.cfg['system_page_title'])\
