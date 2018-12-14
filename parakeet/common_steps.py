@@ -18,7 +18,7 @@ def login(step, user_name):
             google_oauth(user_name)
         elif world.cfg['login_provider'] == 'google_oauth_gapi2':
             google_oauth_gapi2(user_name)
-        LoginPage(world.browser, world.cfg['system_page_title']).redirect_to_home()
+            LoginPage(world.browser, world.cfg['system_page_title']).redirect_to_home()
 
 
 def google_oauth(user_name):
@@ -45,6 +45,10 @@ def google_oauth_gapi2(user_name):
         .set_window()\
         .click_sign_in()\
         .switch_windows_after()
+    #check if there is already an account signed in:
+    #LoginPage(world.browser, world.cfg['system_page_title'])\
+    #.click_to_log_with_another_account()
+
     google_oauth(user_name)
     LoginPage(world.browser, world.cfg['system_page_title'])\
         .switch_windows_before()
