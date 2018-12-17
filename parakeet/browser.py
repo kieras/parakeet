@@ -247,7 +247,7 @@ class ParakeetBrowser(object):
 
             return result
         except Exception as ex:
-            LOG.error('Exception: {}'.format(str(ex)))
+            LOG.warn('Exception: {}'.format(str(ex)))
             if 'md-backdrop' in str(ex):
                 self._remove_back_drop()
 
@@ -259,6 +259,7 @@ class ParakeetBrowser(object):
 
             self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
                                           .format(next_image(), method.__name__))
+            LOG.error('Exception: {}'.format(str(ex)))
             raise ex
 
     def _remove_scroll_back(self):
