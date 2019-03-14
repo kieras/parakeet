@@ -2,6 +2,8 @@
 from __future__ import division
 import time
 import re
+
+from selenium.common.exceptions import TimeoutException
 from splinter import Browser
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -34,10 +36,14 @@ class ParakeetElement(object):
         return self
 
     def click(self):
-        self.parakeet.retry(method=self.click_once_time_only)
+        try:
+            self.parakeet.retry(method=self.click_once)
+        except Exception as ex:
+            LOG.error('Attempts exceeded')
+
         return self
 
-    def click_once_time_only(self):
+    def click_once(self):
         self.element = self.wait_element_to_be_clickable()
         self.element.click()
         return self
@@ -142,6 +148,7 @@ class ParakeetBrowser(object):
         self.waiting_time = int(config.get('default_implicitly_wait_seconds'))
         self.poll_frequency = int(config.get('default_poll_frequency_seconds'))
         self.snapshot_debug = config.get('snapshot_debug', False)
+        self.color_log = config.get('color_log', False)
         self.type_pause = float(config.get('type_pause', 0))
         self.retry_get_element = int(config.get('retry', 1))
         self.selenium.implicitly_wait(self.waiting_time)
@@ -167,10 +174,11 @@ class ParakeetBrowser(object):
                   .format(element_id))
         return self.splinter.is_element_present_by_id(element_id, self.waiting_time)
 
-    def is_element_present_by_xpath(self, element_xpath):
-        LOG.debug('is_element_present_by_xpath({})'
-                  .format(element_xpath))
-        return self.splinter.is_element_present_by_xpath(element_xpath, self.waiting_time)
+    def is_element_present_by_xpath(self, element_xpath, p_waiting_time=None):
+        _waiting_time = p_waiting_time if p_waiting_time else self.waiting_time
+        LOG.debug('is_element_present_by_xpath({}, {})'
+                  .format(element_xpath, _waiting_time))
+        return self.splinter.is_element_present_by_xpath(element_xpath, _waiting_time)
 
     def is_text_present(self, text):
         LOG.debug('is_text_present({})'
@@ -193,9 +201,18 @@ class ParakeetBrowser(object):
         _waiting_time = waiting_time if waiting_time else self.waiting_time
         LOG.debug('get_element_waiting_for_its_presence({}, {}, {})'
                   .format(locator, _waiting_time, self.poll_frequency))
-        element = WebDriverWait(self.selenium, _waiting_time, self.poll_frequency).until(
-            ec.presence_of_element_located(locator)
-        )
+        element = None
+
+        try:
+            element = WebDriverWait(self.selenium, _waiting_time, self.poll_frequency).until(
+                ec.presence_of_element_located(locator)
+            )
+        except TimeoutException:
+            LOG.error("Time is up! {}s".format(_waiting_time))
+            self.selenium\
+                .save_screenshot('parakeet_timeout_error_{:05d}.png'
+                                 .format(next_image()))
+
         return element
 
     def get_element_waiting_for_its_presence_by_xpath(self, xpath, waiting_time=None):
@@ -230,12 +247,28 @@ class ParakeetBrowser(object):
 
             return result
         except Exception as ex:
-            LOG.error('Exception: {}'.format(ex.message))
+            LOG.warn('Exception: {}'.format(str(ex)))
+            if 'md-backdrop' in str(ex):
+                self._remove_back_drop()
+
+            if 'md-scroll-mask' in str(ex):
+                self._remove_scroll_back()
+
             if _next_iterator < _retry:
                 return self._perform_method(_next, _next_iterator, kwargs, method)
+
             self.selenium.save_screenshot('parakeet_error_{:05d}_{}.png'
                                           .format(next_image(), method.__name__))
+            LOG.error('Exception: {}'.format(str(ex)))
             raise ex
+
+    def _remove_scroll_back(self):
+        LOG.info('---- Remove md-scroll-mask ---')
+        self.splinter.execute_script("document.getElementsByClassName('md-scroll-mask')[0]['style']['display'] = 'none'")
+
+    def _remove_back_drop(self):
+        LOG.info('---- Remove md-backdrop ---')
+        self.splinter.execute_script("document.getElementsByTagName('md-backdrop')[0].style.display = 'none'")
 
     def _perform_method(self, next, next_iterator, kwargs, method):
         """

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import base64
+import base64, time
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -62,9 +62,7 @@ class LoginPage:
 
     def login(self):
         LOG.debug('login')
-        self.browser\
-            .find_element_by_id('passwordNext')\
-            .click()
+        self.browser.find_element_by_id('passwordNext').click()
         return self
 
     def redirect_to_home(self):
@@ -78,6 +76,7 @@ class LoginPage:
     def click_sign_in(self):
         LOG.debug('click_sign_in')
         self.browser.find_element_by_xpath('//md-card-actions/button').click()
+        time.sleep(1)
         return self
 
     def switch_windows_before(self):
@@ -94,4 +93,12 @@ class LoginPage:
     def set_window(self):
         LOG.debug('set_window')
         self.window = self.browser.selenium.window_handles[0]
+        return self
+
+    def click_to_log_with_another_account(self):
+        LOG.debug('click_to_log_with_another_account')
+        element = '//*[@id="view_container"]/div/div/div[2]/div/div/div/form/content/section/div/content/div/div/ul/li[2]/div'
+        if self.browser.is_element_present_by_xpath(element):
+            LOG.debug('another account option is present, lets click on it')
+            self.browser.find_element_by_xpath(element).click()
         return self
