@@ -94,11 +94,3 @@ class LoginPage:
         LOG.debug('set_window')
         self.window = self.browser.selenium.window_handles[0]
         return self
-
-    def click_to_log_with_another_account(self):
-        LOG.debug('click_to_log_with_another_account')
-        element = '//*[@id="view_container"]/div/div/div[2]/div/div/div/form/content/section/div/content/div/div/ul/li[2]/div'
-        if self.browser.is_element_present_by_xpath(element):
-            LOG.debug('another account option is present, lets click on it')
-            self.browser.find_element_by_xpath(element).click()
-        return self
