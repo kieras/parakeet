@@ -174,10 +174,11 @@ class ParakeetBrowser(object):
                   .format(element_id))
         return self.splinter.is_element_present_by_id(element_id, self.waiting_time)
 
-    def is_element_present_by_xpath(self, element_xpath):
+    def is_element_present_by_xpath(self, element_xpath, p_waiting_time=None):
+        _waiting_time = p_waiting_time if p_waiting_time else self.waiting_time
         LOG.debug('is_element_present_by_xpath({}, {})'
-                  .format(element_xpath, element_xpath))
-        return self.splinter.is_element_present_by_xpath(element_xpath, self.waiting_time)
+                  .format(element_xpath, _waiting_time))
+        return self.splinter.is_element_present_by_xpath(element_xpath, _waiting_time)
 
     def is_text_present(self, text):
         LOG.debug('is_text_present({})'
