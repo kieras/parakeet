@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import base64
+import base64, time
 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -62,9 +62,7 @@ class LoginPage:
 
     def login(self):
         LOG.debug('login')
-        self.browser\
-            .find_element_by_id('passwordNext')\
-            .click()
+        self.browser.find_element_by_id('passwordNext').click()
         return self
 
     def redirect_to_home(self):
@@ -78,6 +76,7 @@ class LoginPage:
     def click_sign_in(self):
         LOG.debug('click_sign_in')
         self.browser.find_element_by_xpath('//md-card-actions/button').click()
+        time.sleep(1)
         return self
 
     def switch_windows_before(self):
