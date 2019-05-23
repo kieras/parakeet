@@ -1,4 +1,4 @@
-selenium==3.7.0
+selenium==3.141.0
 splinter==0.7.7
 pyyaml==3.12
 lettuce==0.2.23
